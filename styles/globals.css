@@ -1,0 +1,149 @@
+@import url("https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap");
+
+:root {
+  --bg: #ffffff;
+  --surface: #f7f4f3;
+  --card: #ffffff;
+  --card-hover: #fcf4f3;
+  --ink: #201818;
+  --ink-dim: #6b5c5c;
+  --muted: #9a8b8b;
+  --red: #962121;
+  --red-dim: #c77a7a;
+  --red-deep: #6e1818;
+  --line: #e9dede;
+  --radius: 14px;
+}
+* { box-sizing: border-box; }
+html, body { padding: 0; margin: 0; background: var(--bg); color: var(--ink); font-family: "Inter", sans-serif; }
+.wrap { max-width: 1080px; margin: 0 auto; padding: 24px 20px 80px; }
+
+.scoreboard {
+  background: var(--red);
+  border-radius: var(--radius);
+  padding: 24px 28px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 24px;
+}
+.brand { font-family: "Anton", sans-serif; font-size: 30px; text-transform: uppercase; color: #fff; line-height: 1; }
+.brand span { color: #f3d2d2; }
+.subtitle { color: #f0d6d6; font-size: 14px; margin-top: 6px; }
+.clock-block { text-align: center; }
+.clock-label { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: #f0d6d6; margin-bottom: 6px; }
+.clock {
+  font-family: "Space Mono", monospace;
+  font-size: 32px;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: 2px;
+  background: rgba(0, 0, 0, 0.18);
+  padding: 6px 18px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+}
+.clock.ended { color: #ffd9d9; }
+
+.toolbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 20px; }
+.intro { color: var(--ink-dim); font-size: 15px; line-height: 1.6; max-width: 620px; margin: 0; }
+.sort-block { display: flex; align-items: center; gap: 8px; }
+.sort-block label { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; }
+.sort-block select {
+  padding: 8px 10px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface);
+  color: var(--ink); font-family: "Inter", sans-serif; font-size: 13px;
+}
+
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 16px; }
+.jcard {
+  background: var(--card); border: 1px solid var(--line); border-radius: var(--radius);
+  padding: 18px; display: flex; flex-direction: column; gap: 10px; position: relative;
+  transition: transform 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+}
+.jcard:hover { background: var(--card-hover); transform: translateY(-2px); border-color: var(--red-dim); }
+.jcard-top { display: flex; align-items: center; gap: 12px; padding-right: 52px; }
+.jnum { font-family: "Anton", sans-serif; font-size: 40px; color: var(--red); line-height: 1; min-width: 50px; }
+.jname { font-weight: 600; font-size: 16px; color: var(--ink); }
+.photo-wrap { align-self: center; width: 100px; height: 100px; display: flex; align-items: center; justify-content: center; }
+.photo-wrap img { width: 100%; height: 100%; object-fit: cover; display: block; border-radius: 8px; }
+.avatar-corner {
+  position: absolute; top: 14px; right: 14px; width: 44px; height: 44px; border-radius: 50%; overflow: hidden;
+  border: 2px solid var(--red); background: var(--surface); display: flex; align-items: center; justify-content: center;
+}
+.avatar-corner img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.shirt { width: 70px; height: 70px; opacity: 0.9; }
+.face-icon { width: 26px; height: 26px; opacity: 0.85; }
+
+.bidrow { display: flex; justify-content: space-between; align-items: baseline; border-top: 1px solid var(--line); padding-top: 10px; }
+.bidlabel { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); }
+.bidamount { font-family: "Space Mono", monospace; font-size: 20px; font-weight: 700; color: var(--ink); }
+.bidder { font-size: 12px; color: var(--red); margin-top: 2px; }
+.winner-tag {
+  font-size: 11px; text-transform: uppercase; letter-spacing: 1px; background: #fbeaea; color: var(--red-deep);
+  padding: 3px 8px; border-radius: 6px; display: inline-block; width: fit-content;
+}
+button.bidbtn {
+  margin-top: 4px; width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--red);
+  background: transparent; color: var(--red); font-weight: 600; font-size: 14px; cursor: pointer;
+  font-family: "Inter", sans-serif; transition: background 0.15s ease, color 0.15s ease;
+}
+button.bidbtn:hover { background: var(--red); color: #fff; }
+button.bidbtn:disabled { opacity: 0.4; cursor: not-allowed; border-color: var(--muted); color: var(--muted); }
+
+.overlay { position: fixed; inset: 0; background: rgba(32, 24, 24, 0.55); display: flex; align-items: center; justify-content: center; z-index: 50; padding: 20px; }
+.modal { background: #fff; border: 1px solid var(--line); border-radius: var(--radius); padding: 24px; width: 100%; max-width: 380px; }
+.modal h3 { margin: 0 0 4px; font-family: "Anton", sans-serif; font-size: 22px; letter-spacing: 0.5px; color: var(--red); }
+.modal p.hint { color: var(--muted); font-size: 13px; margin: 0 0 16px; }
+.field { margin-bottom: 14px; }
+.field label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.5px; }
+.field input {
+  width: 100%; padding: 10px 12px; border-radius: 8px; border: 1px solid var(--line);
+  background: var(--surface); color: var(--ink); font-size: 15px; font-family: "Inter", sans-serif;
+}
+.field input:focus { outline: none; border-color: var(--red); }
+.modal-actions { display: flex; gap: 10px; margin-top: 18px; }
+.modal-actions button { flex: 1; padding: 11px; border-radius: 8px; font-weight: 600; font-size: 14px; cursor: pointer; font-family: "Inter", sans-serif; }
+.btn-cancel { background: transparent; border: 1px solid var(--line); color: var(--ink-dim); }
+.btn-confirm { background: var(--red); border: 1px solid var(--red); color: #fff; }
+.btn-confirm:hover { background: var(--red-deep); }
+.error-msg { color: var(--red); font-size: 13px; margin-top: -6px; margin-bottom: 12px; min-height: 16px; }
+
+.admin-gear {
+  position: fixed; bottom: 18px; right: 18px; width: 40px; height: 40px; border-radius: 50%;
+  background: #fff; border: 1px solid var(--line); color: var(--muted); display: flex; align-items: center;
+  justify-content: center; cursor: pointer; font-size: 16px; z-index: 40;
+}
+.admin-gear:hover { color: var(--red); border-color: var(--red-dim); }
+.admin-panel { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 22px; margin: 0 0 24px; }
+.admin-panel h3 { font-family: "Anton", sans-serif; margin: 0 0 4px; font-size: 20px; color: var(--red); }
+.admin-panel .sec { margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--line); }
+.admin-panel label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 5px; }
+.admin-panel input[type=text], .admin-panel input[type=number], .admin-panel input[type=datetime-local] {
+  padding: 8px 10px; border-radius: 6px; border: 1px solid var(--line); background: #fff; color: var(--ink);
+  font-family: "Inter", sans-serif; font-size: 13px;
+}
+.admin-row { display: flex; gap: 8px; align-items: center; margin-bottom: 6px; flex-wrap: wrap; }
+.admin-row .jn { width: 64px; }
+.admin-row .nm { flex: 1; min-width: 120px; }
+.admin-row .pr { width: 80px; }
+.admin-row .upload-label {
+  flex: 1; min-width: 130px; padding: 8px 10px; border: 1px dashed var(--red-dim); border-radius: 6px;
+  font-size: 12px; color: var(--red); text-align: center; cursor: pointer; background: #fff;
+}
+.admin-row .upload-label input { display: none; }
+.admin-row .thumb { width: 32px; height: 32px; border-radius: 6px; object-fit: cover; border: 1px solid var(--line); }
+.admin-btn {
+  padding: 8px 14px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; border: 1px solid var(--red);
+  background: transparent; color: var(--red); font-family: "Inter", sans-serif; margin-top: 8px;
+}
+.admin-btn:hover { background: var(--red); color: #fff; }
+.admin-btn.danger { border-color: var(--red-deep); color: var(--red-deep); }
+.admin-btn.danger:hover { background: var(--red-deep); color: #fff; }
+.status-line { font-size: 12px; color: var(--muted); margin-top: 10px; min-height: 16px; }
+.loading { text-align: center; color: var(--muted); padding: 60px 0; font-size: 14px; }
+
+table.history-table { width: 100%; font-size: 13px; border-collapse: collapse; }
+table.history-table th { text-align: left; color: var(--muted); padding: 4px 6px; }
+table.history-table td { padding: 4px 6px; border-top: 1px solid var(--line); }
