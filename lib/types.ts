@@ -1,7 +1,7 @@
 // The club name used to be an editable config field, but saving it was
 // unreliable, so per request it's now a simple hardcoded constant.
 // Just change the string below to update it everywhere.
-export const CLUB_NAME = "Unser Verein";
+export const CLUB_NAME = "SPG GROSSWALSERTAL";
 
 export interface Jersey {
   id: string;
