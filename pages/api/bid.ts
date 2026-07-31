@@ -15,13 +15,15 @@ export default async function handler(
   try {
     const { jerseyId, amount, bidder, phone, email } = req.body || {};
 
-    if (!jerseyId || !bidder || !phone || !email || !amount) {
-      return res.status(400).json({ error: "Bitte alle Felder ausfüllen." });
+    if (!jerseyId || !bidder || !amount) {
+      return res.status(400).json({ error: "Bitte Name und Gebot ausfüllen." });
     }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(email))) {
+    const phoneTrimmed = phone ? String(phone).trim() : "";
+    const emailTrimmed = email ? String(email).trim() : "";
+    if (emailTrimmed && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailTrimmed)) {
       return res.status(400).json({ error: "Ungültige E-Mail-Adresse." });
     }
-    if (String(phone).replace(/[^0-9]/g, "").length < 6) {
+    if (phoneTrimmed && phoneTrimmed.replace(/[^0-9]/g, "").length < 6) {
       return res.status(400).json({ error: "Ungültige Telefonnummer." });
     }
 
@@ -45,8 +47,8 @@ export default async function handler(
       id: Date.now().toString(36) + Math.random().toString(36).slice(2),
       amount: amountNum,
       bidder: String(bidder).trim(),
-      phone: String(phone).trim(),
-      email: String(email).trim(),
+      phone: phoneTrimmed,
+      email: emailTrimmed,
       time: new Date().toISOString(),
       removed: false,
     };

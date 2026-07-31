@@ -17,7 +17,6 @@ export function defaultConfig(): AuctionConfig {
   }
   const end = new Date(Date.now() + 7 * 24 * 3600 * 1000);
   return {
-    clubName: "Unser Verein",
     ended: false,
     endTime: end.toISOString(),
     jerseys,

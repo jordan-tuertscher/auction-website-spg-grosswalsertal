@@ -147,3 +147,45 @@ button.bidbtn:disabled { opacity: 0.4; cursor: not-allowed; border-color: var(--
 table.history-table { width: 100%; font-size: 13px; border-collapse: collapse; }
 table.history-table th { text-align: left; color: var(--muted); padding: 4px 6px; }
 table.history-table td { padding: 4px 6px; border-top: 1px solid var(--line); }
+
+/* Image lightbox */
+.lightbox-overlay {
+  position: fixed; inset: 0; background: rgba(10, 6, 6, 0.85);
+  display: flex; align-items: center; justify-content: center; z-index: 100; padding: 40px;
+}
+.lightbox-img { max-width: 90vw; max-height: 90vh; object-fit: contain; border-radius: 10px; box-shadow: 0 10px 40px rgba(0,0,0,0.5); }
+.lightbox-close {
+  position: fixed; top: 20px; right: 24px; width: 44px; height: 44px; border-radius: 50%;
+  background: #fff; border: none; color: var(--ink); font-size: 20px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; z-index: 101;
+}
+.lightbox-close:hover { background: var(--red); color: #fff; }
+.photo-wrap img:hover, .avatar-corner img:hover { filter: brightness(0.92); }
+
+/* Large-screen / TV-friendly layout: on very wide viewports (e.g. a TV
+   plugged into a laptop, or a big monitor at the club), stretch the content
+   wider and scale up key readable elements instead of leaving huge empty
+   margins on either side. */
+@media (min-width: 1400px) {
+  .wrap { max-width: 1700px; }
+  .grid { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 22px; }
+  .brand { font-size: 40px; }
+  .subtitle { font-size: 16px; }
+  .clock { font-size: 42px; padding: 8px 24px; }
+  .clock-label { font-size: 13px; }
+  .jnum { font-size: 48px; }
+  .jname { font-size: 19px; }
+  .bidamount { font-size: 24px; }
+  .bidlabel { font-size: 12px; }
+  .bidder { font-size: 13px; }
+  button.bidbtn { font-size: 15px; padding: 12px; }
+}
+@media (min-width: 2200px) {
+  .wrap { max-width: 2100px; }
+  .grid { grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 26px; }
+  .brand { font-size: 52px; }
+  .clock { font-size: 54px; }
+  .jnum { font-size: 58px; }
+  .jname { font-size: 22px; }
+  .bidamount { font-size: 28px; }
+}

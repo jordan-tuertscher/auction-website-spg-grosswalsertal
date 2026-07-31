@@ -1,5 +1,39 @@
 import { useEffect, useState, useCallback, useRef, memo } from "react";
 import type { AuctionConfig, BidsMap, BidEntry, Jersey, ConfigResponse, ApiError } from "../lib/types";
+import { CLUB_NAME } from "../lib/types";
+
+const BIDDER_INFO_KEY = "trikot-auktion:bidder-info";
+
+interface SavedBidderInfo {
+  name: string;
+  phone: string;
+  email: string;
+}
+
+function loadSavedBidderInfo(): SavedBidderInfo {
+  if (typeof window === "undefined") return { name: "", phone: "", email: "" };
+  try {
+    const raw = window.localStorage.getItem(BIDDER_INFO_KEY);
+    if (!raw) return { name: "", phone: "", email: "" };
+    const parsed = JSON.parse(raw);
+    return {
+      name: typeof parsed.name === "string" ? parsed.name : "",
+      phone: typeof parsed.phone === "string" ? parsed.phone : "",
+      email: typeof parsed.email === "string" ? parsed.email : "",
+    };
+  } catch {
+    return { name: "", phone: "", email: "" };
+  }
+}
+
+function saveBidderInfo(info: SavedBidderInfo) {
+  if (typeof window === "undefined") return;
+  try {
+    window.localStorage.setItem(BIDDER_INFO_KEY, JSON.stringify(info));
+  } catch {
+    // ignore (e.g. private browsing storage restrictions)
+  }
+}
 
 function fmtEUR(n: number): string {
   return new Intl.NumberFormat("de-DE", { style: "currency", currency: "EUR", maximumFractionDigits: 0 }).format(n);
@@ -57,8 +91,9 @@ export default function Home() {
   const [config, setConfig] = useState<AuctionConfig | null>(null);
   const [bids, setBids] = useState<BidsMap>({});
   const [loading, setLoading] = useState(true);
-  const [sortMode, setSortMode] = useState<"number" | "high" | "low">("number");
+  const [sortMode, setSortMode] = useState<"number" | "high" | "low">("high");
   const [bidJerseyId, setBidJerseyId] = useState<string | null>(null);
+  const [lightboxSrc, setLightboxSrc] = useState<string | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [adminPassword, setAdminPasswordState] = useState("");
   const isAdminRef = useRef(false);
@@ -133,7 +168,7 @@ export default function Home() {
     <div className="wrap">
       <div className="scoreboard">
         <div>
-          <div className="brand">{config.clubName} <span>Trikot-Auktion</span></div>
+          <div className="brand">{CLUB_NAME} <span>Trikot-Auktion</span></div>
           <div className="subtitle">Der Erlös kommt direkt dem Nachwuchs zugute</div>
         </div>
         <div className="clock-block">
@@ -171,11 +206,19 @@ export default function Home() {
             bid={bids[j.id] || null}
             ended={ended}
             onBid={() => setBidJerseyId(j.id)}
+            onImageClick={(src) => setLightboxSrc(src)}
           />
         ))}
       </div>
 
       <div className="admin-gear" title="Vorstand" onClick={handleGearClick}>⚙</div>
+
+      {lightboxSrc && (
+        <div className="lightbox-overlay" onClick={() => setLightboxSrc(null)}>
+          <button className="lightbox-close" onClick={() => setLightboxSrc(null)} aria-label="Schließen">✕</button>
+          <img className="lightbox-img" src={lightboxSrc} alt="" onClick={(e) => e.stopPropagation()} />
+        </div>
+      )}
 
       {bidJerseyId && (
         <BidModal
@@ -193,13 +236,13 @@ export default function Home() {
 }
 
 const JerseyCard = memo(function JerseyCard({
-  jersey, bid, ended, onBid,
-}: { jersey: Jersey; bid: BidEntry | null; ended: boolean; onBid: () => void }) {
+  jersey, bid, ended, onBid, onImageClick,
+}: { jersey: Jersey; bid: BidEntry | null; ended: boolean; onBid: () => void; onImageClick: (src: string) => void }) {
   const current = bid ? bid.amount : jersey.start;
   const label = bid ? "Höchstgebot" : "Startpreis";
   return (
     <div className="jcard">
-      <div className="avatar-corner">
+      <div className="avatar-corner" onClick={() => jersey.facePhoto && onImageClick(jersey.facePhoto)} style={jersey.facePhoto ? { cursor: "zoom-in" } : undefined}>
         {jersey.facePhoto
           ? <img src={jersey.facePhoto} alt={jersey.name} onError={(e) => { e.currentTarget.style.display = "none"; }} />
           : <FaceIcon />}
@@ -208,7 +251,7 @@ const JerseyCard = memo(function JerseyCard({
         <div className="jnum">{jersey.number}</div>
         <div className="jname">{jersey.name}</div>
       </div>
-      <div className="photo-wrap">
+      <div className="photo-wrap" onClick={() => jersey.jerseyPhoto && onImageClick(jersey.jerseyPhoto)} style={jersey.jerseyPhoto ? { cursor: "zoom-in" } : undefined}>
         {jersey.jerseyPhoto
           ? <img src={jersey.jerseyPhoto} alt={"Trikot " + jersey.name} onError={(e) => { e.currentTarget.style.display = "none"; }} />
           : <ShirtIcon />}
@@ -234,9 +277,10 @@ function BidModal({
   jersey, currentBid, onClose, onSuccess,
 }: { jersey: Jersey; currentBid: BidEntry | null; onClose: () => void; onSuccess: (current: BidEntry | null) => void }) {
   const minNext = (currentBid ? currentBid.amount : jersey.start - 5) + 5;
-  const [name, setName] = useState("");
-  const [phone, setPhone] = useState("");
-  const [email, setEmail] = useState("");
+  const saved = useRef(loadSavedBidderInfo()).current;
+  const [name, setName] = useState(saved.name);
+  const [phone, setPhone] = useState(saved.phone);
+  const [email, setEmail] = useState(saved.email);
   const [amount, setAmount] = useState(minNext);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
@@ -244,17 +288,20 @@ function BidModal({
   async function submit() {
     setError("");
     if (!name.trim()) { setError("Bitte gib deinen Namen ein."); return; }
-    if (phone.replace(/[^0-9]/g, "").length < 6) { setError("Bitte gib eine gültige Telefonnummer ein."); return; }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { setError("Bitte gib eine gültige E-Mail-Adresse ein."); return; }
     if (!amount || Number(amount) < minNext) { setError("Gebot muss mindestens " + fmtEUR(minNext) + " sein."); return; }
+    const phoneTrimmed = phone.trim();
+    const emailTrimmed = email.trim();
+    if (phoneTrimmed && phoneTrimmed.replace(/[^0-9]/g, "").length < 6) { setError("Telefonnummer sieht ungültig aus."); return; }
+    if (emailTrimmed && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailTrimmed)) { setError("E-Mail-Adresse sieht ungültig aus."); return; }
     setBusy(true);
     try {
       const { ok, data } = await fetchJson<{ ok: true; current: BidEntry | null } | ApiError>("/api/bid", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ jerseyId: jersey.id, amount: Number(amount), bidder: name.trim(), phone: phone.trim(), email: email.trim() }),
+        body: JSON.stringify({ jerseyId: jersey.id, amount: Number(amount), bidder: name.trim(), phone: phoneTrimmed, email: emailTrimmed }),
       });
       if (!ok) { setError((data as ApiError).error || "Fehler beim Speichern."); setBusy(false); return; }
+      saveBidderInfo({ name: name.trim(), phone: phoneTrimmed, email: emailTrimmed });
       onSuccess((data as { ok: true; current: BidEntry | null }).current);
     } catch (e) {
       setError("Fehler beim Speichern. Bitte erneut versuchen.");
@@ -268,10 +315,10 @@ function BidModal({
         <h3>{jersey.name} &ndash; Trikot #{jersey.number}</h3>
         <p className="hint">Mindestgebot: {fmtEUR(minNext)}</p>
         <div className="field"><label>Dein Name</label><input value={name} onChange={(e) => setName(e.target.value)} placeholder="Vor- und Nachname" /></div>
-        <div className="field"><label>Telefonnummer</label><input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="z. B. 0664 1234567" /></div>
-        <div className="field"><label>E-Mail-Adresse</label><input value={email} onChange={(e) => setEmail(e.target.value)} placeholder="name@beispiel.at" /></div>
         <div className="field"><label>Dein Gebot (EUR)</label><input type="number" min={minNext} step={1} value={amount} onChange={(e) => setAmount(Number(e.target.value))} /></div>
-        <p className="hint" style={{ marginTop: "-6px" }}>Telefonnummer und E-Mail werden nur für Rückfragen zur Trikot-Übergabe genutzt, nicht öffentlich angezeigt.</p>
+        <div className="field"><label>Telefonnummer (optional)</label><input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="z. B. 0664 1234567" /></div>
+        <div className="field"><label>E-Mail-Adresse (optional)</label><input value={email} onChange={(e) => setEmail(e.target.value)} placeholder="name@beispiel.at" /></div>
+        <p className="hint" style={{ marginTop: "-6px" }}>Telefon und E-Mail helfen uns bei Rückfragen zur Trikot-Übergabe, sind aber nicht Pflicht und werden nicht öffentlich angezeigt.</p>
         <div className="error-msg">{error}</div>
         <div className="modal-actions">
           <button className="btn-cancel" onClick={onClose}>Abbrechen</button>
@@ -415,12 +462,6 @@ function AdminPanel({
     await persist({ ...draft, ended: nextEnded });
   }
 
-  async function saveClubName(name: string) {
-    const clean = name.trim() || "Unser Verein";
-    const ok = await persist({ ...draft, clubName: clean });
-    setStatus(ok ? "Gespeichert." : "Fehler beim Speichern.");
-  }
-
   async function removeBidEntry(entryId: string) {
     if (!historyJerseyId) return;
     if (!window.confirm("Dieses Gebot wirklich entfernen? Der nächstniedrigere Bieter rückt als Höchstgebot nach.")) return;
@@ -444,10 +485,6 @@ function AdminPanel({
   return (
     <div className="admin-panel">
       <h3>Vorstandsbereich</h3>
-      <div>
-        <label>Vereinsname</label>
-        <input type="text" defaultValue={draft.clubName} onBlur={(e) => saveClubName(e.target.value)} />
-      </div>
 
       <div className="sec">
         <label>Ende der Auktion</label>

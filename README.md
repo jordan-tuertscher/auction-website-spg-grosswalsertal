@@ -1,82 +1,39 @@
-# Trikot-Auktion – Vercel-Version
+# Trikot-Auktion
 
-> **Update (v2):** Behebt zwei Probleme aus der ersten Fassung:
-> 1. **"Zurücksetzen beim Tippen"** im Vorstandsbereich – der Admin-Bereich hat jetzt einen eigenen, geschützten Bearbeitungsstand, der von automatischen Hintergrund-Updates nicht mehr überschrieben werden kann.
-> 2. **Langsames Laden** – die Seite holt jetzt alle Gebote in einer einzigen gebündelten Datenbankabfrage statt in 24 einzelnen nacheinander.
->
-> Außerdem komplett auf **TypeScript** umgestellt, und der Bild-Upload läuft jetzt über einen eigenen Server-Endpunkt (behebt den CORS-Fehler). Am Design/UI wurde nichts verändert.
+A small web app for running a jersey-auction fundraiser for a football club's youth program. Each first-team player's jersey is put up for auction; the highest bidder wins it, with proceeds going to the club's youth teams.
 
-Diese Version läuft komplett unabhängig von Claude:
-- Kein Login für Bietende nötig
-- Bilder werden direkt hochgeladen (kein Hotlink-Problem mehr)
-- Eigene Datenbank (Upstash Redis über Vercel) – ein einheitlicher Stand für alle
-- Kostenlos im Rahmen der Vercel Free-Tier-Limits
+Anyone with the link can browse jerseys and place bids — no account needed. A password-protected admin panel lets the club board manage jerseys (name, starting price, photos), set the auction end time, and review/remove individual bids.
 
-## Schritt 1: Projekt zu GitHub hochladen
+Built with Next.js (Pages Router) + TypeScript, using Upstash Redis for data storage and Vercel Blob for photo uploads.
 
-1. Erstellt (falls noch nicht vorhanden) einen kostenlosen Account auf [github.com](https://github.com)
-2. Erstellt ein neues, leeres Repository (z. B. `trikot-auktion`)
-3. Ladet diesen gesamten Ordner (`trikot-vercel`) dort hoch:
-   - Einfachste Variante ohne Kommandozeile: auf der GitHub-Repo-Seite auf "Add file" → "Upload files" klicken und alle Dateien/Ordner hierher ziehen
+## Running locally
 
-## Schritt 2: Bei Vercel importieren
+### Prerequisites
+- Node.js 18.18+ (20+ recommended)
+- An Upstash Redis database (free tier is enough)
+- A Vercel Blob store (only needed if you want photo uploads to work locally too)
 
-1. Account auf [vercel.com](https://vercel.com) erstellen (kostenlos, Login z. B. mit GitHub-Account möglich)
-2. "Add New..." → "Project" klicken
-3. Euer GitHub-Repository `trikot-auktion` auswählen und importieren
-4. Bei den Einstellungen nichts ändern, einfach auf "Deploy" klicken (der erste Deploy-Versuch schlägt evtl. fehl, weil die Datenbank noch fehlt – das ist normal, siehe Schritt 3)
+### 1. Install dependencies
+npm install
 
-## Schritt 3: Datenbank (Upstash Redis über den Marketplace) einrichten
+### 2. Set up environment variables
+Copy the example file and fill in your own values:
+cp .env.example .env.local
 
-Hinweis: „Vercel KV" gibt es nicht mehr als eigenes Produkt – Vercel hat das im Hintergrund auf Upstash Redis umgestellt. Ihr bindet Upstash jetzt direkt über den Marketplace ein:
+ADMIN_PASSWORD=choose-a-password
+UPSTASH_REDIS_REST_URL=...
+UPSTASH_REDIS_REST_TOKEN=...
+BLOB_READ_WRITE_TOKEN=...
 
-1. Im Vercel-Projekt auf den Reiter **"Storage"** gehen
-2. **"Create Database"** klicken – es öffnet sich die Liste "Browse Storage"
-3. Unter **"Marketplace Database Providers"** auf **"Upstash"** klicken ("Serverless DB (Redis, Vector, Queue, Search)")
-4. Falls gefragt: **"Redis"** als Produkt auswählen
-5. Eine neue Datenbank erstellen (Name frei wählbar, kostenloser Tarif reicht locker) und mit eurem Projekt verbinden ("Connect Project")
-6. Vercel/Upstash setzt die nötigen Umgebungsvariablen (`UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN`) automatisch
+Easiest way to get the Upstash/Blob values: create a Vercel project, connect an Upstash Redis and a Vercel Blob store to it under Storage, then pull the values locally with the Vercel CLI:
+npm i -g vercel
+vercel link
+vercel env pull .env.local
 
-## Schritt 4: Bildspeicher (Vercel Blob) einrichten
+### 3. Start the dev server
+npm run dev
 
-1. Wieder im Reiter **"Storage"** → **"Create Database"**
-2. Diesmal **"Blob"** auswählen (oben in der Liste, "Fast object storage")
-3. Ebenfalls mit dem Projekt verbinden
-4. Auch hier wird die nötige Umgebungsvariable (`BLOB_READ_WRITE_TOKEN`) automatisch gesetzt
+Open http://localhost:3000
 
-## Schritt 5: Admin-Passwort setzen
-
-1. Im Vercel-Projekt zu **"Settings" → "Environment Variables"** gehen
-2. Neue Variable hinzufügen:
-   - Name: `ADMIN_PASSWORD`
-   - Wert: euer gewünschtes Passwort (nicht das Beispiel-Passwort verwenden!)
-3. Speichern
-
-## Schritt 6: Neu deployen
-
-1. Zurück zum Reiter **"Deployments"**
-2. Beim letzten Deployment auf die drei Punkte → **"Redeploy"** klicken
-   (jetzt sind Datenbank, Bildspeicher und Passwort korrekt eingerichtet)
-
-## Fertig!
-
-Ihr bekommt von Vercel eine Adresse wie `https://trikot-auktion-xyz.vercel.app` – das ist eure öffentliche, dauerhafte Auktionsseite. Diesen Link könnt ihr im Verein teilen.
-
-## Bedienung
-
-- **Bieten**: Jeder Besucher kann direkt auf "Bieten" klicken – kein Account nötig
-- **Vorstandsbereich**: Zahnrad-Symbol unten rechts anklicken, Passwort eingeben (das aus Schritt 5)
-- Im Vorstandsbereich könnt ihr:
-  - Vereinsnamen und Enddatum ändern
-  - Auktion manuell beenden/wieder öffnen
-  - Trikots umbenennen, Startpreis ändern, Fotos **direkt hochladen** (Datei-Auswahl, keine URL nötig)
-  - Trikots entfernen
-  - Die komplette Gebotshistorie pro Trikot einsehen und einzelne (z. B. verdächtige/Fake-) Gebote entfernen
-
-## Kosten
-
-Für einen Vereins-Auktion in diesem Umfang (ca. 20–25 Trikots, ein paar hundert Besucher) bleibt ihr komfortabel innerhalb der kostenlosen Vercel-, KV- und Blob-Kontingente. Es sollten keine Kosten anfallen.
-
-## Support / Weiterentwicklung
-
-Bei Fragen zur Anpassung (Design, weitere Felder, etc.) einfach den Code-Ordner wieder in einen Chat mit Claude hochladen und die gewünschte Änderung beschreiben.
+### 4. Open the admin panel
+Click the gear icon in the bottom-right corner and enter the password from ADMIN_PASSWORD.
