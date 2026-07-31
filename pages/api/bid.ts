@@ -1,6 +1,16 @@
+import type { NextApiRequest, NextApiResponse } from "next";
 import { getConfig, getHistory, appendBid, computeCurrent } from "../../lib/store";
+import type { BidEntry, ApiError } from "../../lib/types";
 
-export default async function handler(req, res) {
+interface BidResponse {
+  ok: true;
+  current: BidEntry | null;
+}
+
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse<BidResponse | ApiError>
+) {
   if (req.method !== "POST") return res.status(405).end();
   try {
     const { jerseyId, amount, bidder, phone, email } = req.body || {};
@@ -8,7 +18,7 @@ export default async function handler(req, res) {
     if (!jerseyId || !bidder || !phone || !email || !amount) {
       return res.status(400).json({ error: "Bitte alle Felder ausfüllen." });
     }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(email))) {
       return res.status(400).json({ error: "Ungültige E-Mail-Adresse." });
     }
     if (String(phone).replace(/[^0-9]/g, "").length < 6) {
@@ -31,7 +41,7 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: "Gebot zu niedrig.", minNext });
     }
 
-    const entry = {
+    const entry: BidEntry = {
       id: Date.now().toString(36) + Math.random().toString(36).slice(2),
       amount: amountNum,
       bidder: String(bidder).trim(),

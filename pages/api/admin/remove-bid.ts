@@ -1,10 +1,15 @@
+import type { NextApiRequest, NextApiResponse } from "next";
 import { getHistory, setHistory, computeCurrent } from "../../../lib/store";
+import type { BidEntry, ApiError } from "../../../lib/types";
 
-function checkAuth(req) {
+function checkAuth(req: NextApiRequest): boolean {
   return req.headers["x-admin-password"] === process.env.ADMIN_PASSWORD;
 }
 
-export default async function handler(req, res) {
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse<{ ok: true; current: BidEntry | null } | ApiError>
+) {
   if (!checkAuth(req)) return res.status(401).json({ error: "Falsches Passwort." });
   if (req.method !== "POST") return res.status(405).end();
   try {
