@@ -39,6 +39,19 @@ function fmtEUR(n: number): string {
   return new Intl.NumberFormat("de-DE", { style: "currency", currency: "EUR", maximumFractionDigits: 0 }).format(n);
 }
 
+// Locks page scrolling behind any open modal/lightbox - avoids the confusing
+// "background scrolls under the popup" behavior, especially on mobile.
+function useLockBodyScroll(locked: boolean) {
+  useEffect(() => {
+    if (!locked) return;
+    const original = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = original;
+    };
+  }, [locked]);
+}
+
 function ShirtIcon() {
   return (
     <svg className="shirt" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -119,7 +132,10 @@ export default function Home() {
   const [sortMode, setSortMode] = useState<"number" | "high" | "low">("high");
   const [bidJerseyId, setBidJerseyId] = useState<string | null>(null);
   const [lightboxSrc, setLightboxSrc] = useState<string | null>(null);
+  const [playerModalJerseyId, setPlayerModalJerseyId] = useState<string | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
+
+  useLockBodyScroll(!!bidJerseyId || !!lightboxSrc || !!playerModalJerseyId);
   const [adminPassword, setAdminPasswordState] = useState("");
   const isAdminRef = useRef(false);
 
@@ -234,11 +250,27 @@ export default function Home() {
             ended={ended}
             onBid={() => setBidJerseyId(j.id)}
             onImageClick={(src) => setLightboxSrc(src)}
+            onOpenPlayer={() => setPlayerModalJerseyId(j.id)}
           />
         ))}
       </div>
 
       <div className="admin-gear" title="Vorstand" onClick={handleGearClick}>⚙</div>
+
+      {playerModalJerseyId && (() => {
+        const j = config.jerseys.find((x) => x.id === playerModalJerseyId);
+        if (!j) return null;
+        return (
+          <PlayerModal
+            jersey={j}
+            bid={bids[j.id] || null}
+            ended={ended}
+            onClose={() => setPlayerModalJerseyId(null)}
+            onBid={() => { setPlayerModalJerseyId(null); setBidJerseyId(j.id); }}
+            onImageClick={(src) => setLightboxSrc(src)}
+          />
+        );
+      })()}
 
       {lightboxSrc && (
         <div className="lightbox-overlay" onClick={() => setLightboxSrc(null)}>
@@ -263,13 +295,17 @@ export default function Home() {
 }
 
 const JerseyCard = memo(function JerseyCard({
-  jersey, bid, ended, onBid, onImageClick,
-}: { jersey: Jersey; bid: BidEntry | null; ended: boolean; onBid: () => void; onImageClick: (src: string) => void }) {
+  jersey, bid, ended, onBid, onImageClick, onOpenPlayer,
+}: { jersey: Jersey; bid: BidEntry | null; ended: boolean; onBid: () => void; onImageClick: (src: string) => void; onOpenPlayer: () => void }) {
   const current = bid ? bid.amount : jersey.start;
   const label = bid ? "Höchstgebot" : "Startpreis";
   return (
-    <div className="jcard">
-      <div className="avatar-corner" onClick={() => jersey.facePhoto && onImageClick(jersey.facePhoto)} style={jersey.facePhoto ? { cursor: "zoom-in" } : undefined}>
+    <div className="jcard" onClick={onOpenPlayer} style={{ cursor: "pointer" }}>
+      <div
+        className="avatar-corner"
+        onClick={(e) => { e.stopPropagation(); if (jersey.facePhoto) onImageClick(jersey.facePhoto); }}
+        style={jersey.facePhoto ? { cursor: "zoom-in" } : undefined}
+      >
         {jersey.facePhoto
           ? <img src={jersey.facePhoto} alt={jersey.name} onError={(e) => { e.currentTarget.style.display = "none"; }} />
           : <FaceIcon />}
@@ -278,7 +314,11 @@ const JerseyCard = memo(function JerseyCard({
         <div className="jnum">{jersey.number}</div>
         <div className="jname">{jersey.name}</div>
       </div>
-      <div className="photo-wrap" onClick={() => jersey.jerseyPhoto && onImageClick(jersey.jerseyPhoto)} style={jersey.jerseyPhoto ? { cursor: "zoom-in" } : undefined}>
+      <div
+        className="photo-wrap"
+        onClick={(e) => { e.stopPropagation(); if (jersey.jerseyPhoto) onImageClick(jersey.jerseyPhoto); }}
+        style={jersey.jerseyPhoto ? { cursor: "zoom-in" } : undefined}
+      >
         {jersey.jerseyPhoto
           ? <img src={jersey.jerseyPhoto} alt={"Trikot " + jersey.name} onError={(e) => { e.currentTarget.style.display = "none"; }} />
           : <ShirtIcon />}
@@ -293,12 +333,61 @@ const JerseyCard = memo(function JerseyCard({
           ? <span className="winner-tag">Gewonnen</span>
           : <span className="winner-tag" style={{ background: "#f3eded", color: "var(--muted)" }}>Kein Gebot</span>)}
       </div>
-      <button className="bidbtn" disabled={ended} onClick={onBid}>
+      <button className="bidbtn" disabled={ended} onClick={(e) => { e.stopPropagation(); onBid(); }}>
         {ended ? "Auktion beendet" : "Bieten"}
       </button>
     </div>
   );
 });
+
+function PlayerModal({
+  jersey, bid, ended, onClose, onBid, onImageClick,
+}: { jersey: Jersey; bid: BidEntry | null; ended: boolean; onClose: () => void; onBid: () => void; onImageClick: (src: string) => void }) {
+  const current = bid ? bid.amount : jersey.start;
+  const label = bid ? "Höchstgebot" : "Startpreis";
+  return (
+    <div className="overlay" onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
+      <div className="player-modal">
+        <button className="player-modal-close" onClick={onClose} aria-label="Schließen">✕</button>
+        <div
+          className="avatar-corner"
+          onClick={() => jersey.facePhoto && onImageClick(jersey.facePhoto)}
+          style={jersey.facePhoto ? { cursor: "zoom-in" } : undefined}
+        >
+          {jersey.facePhoto
+            ? <img src={jersey.facePhoto} alt={jersey.name} onError={(e) => { e.currentTarget.style.display = "none"; }} />
+            : <FaceIcon />}
+        </div>
+        <div className="jcard-top">
+          <div className="jnum">{jersey.number}</div>
+          <div className="jname">{jersey.name}</div>
+        </div>
+        <div
+          className="photo-wrap"
+          onClick={() => jersey.jerseyPhoto && onImageClick(jersey.jerseyPhoto)}
+          style={jersey.jerseyPhoto ? { cursor: "zoom-in" } : undefined}
+        >
+          {jersey.jerseyPhoto
+            ? <img src={jersey.jerseyPhoto} alt={"Trikot " + jersey.name} onError={(e) => { e.currentTarget.style.display = "none"; }} />
+            : <ShirtIcon />}
+        </div>
+        <div className="bidrow">
+          <div>
+            <div className="bidlabel">{label}</div>
+            <div className="bidamount">{fmtEUR(current)}</div>
+            {bid && <div className="bidder">von {bid.bidder}</div>}
+          </div>
+          {ended && (bid
+            ? <span className="winner-tag">Gewonnen</span>
+            : <span className="winner-tag" style={{ background: "#f3eded", color: "var(--muted)" }}>Kein Gebot</span>)}
+        </div>
+        <button className="bidbtn" disabled={ended} onClick={onBid}>
+          {ended ? "Auktion beendet" : "Bieten"}
+        </button>
+      </div>
+    </div>
+  );
+}
 
 function BidModal({
   jersey, currentBid, onClose, onSuccess,
@@ -345,11 +434,14 @@ function BidModal({
       <div className="modal">
         <h3>{jersey.name} &ndash; Trikot #{jersey.number}</h3>
         <p className="hint">Mindestgebot: {fmtEUR(minNext)}</p>
+        <p className="hint">
+          Telefon und E-Mail helfen uns bei Rückfragen zur Trikot-Übergabe, sind aber nicht Pflicht und werden nicht öffentlich angezeigt.{" "}
+          <strong className="hint-warning">Geben Sie Ihre Informationen wahrheitsgemäß ein. Nicht nachvollziehbare Gebote werden gelöscht!</strong>
+        </p>
         <div className="field"><label>Dein Name</label><input value={name} onChange={(e) => setName(e.target.value)} placeholder="Vor- und Nachname" /></div>
         <div className="field"><label>Dein Gebot (EUR)</label><input type="number" min={minNext} step={1} value={amount} onChange={(e) => setAmount(e.target.value)} /></div>
         <div className="field"><label>Telefonnummer (optional)</label><input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="z. B. 0664 1234567" /></div>
         <div className="field"><label>E-Mail-Adresse (optional)</label><input value={email} onChange={(e) => setEmail(e.target.value)} placeholder="name@beispiel.at" /></div>
-        <p className="hint" style={{ marginTop: "-6px" }}>Telefon und E-Mail helfen uns bei Rückfragen zur Trikot-Übergabe, sind aber nicht Pflicht und werden nicht öffentlich angezeigt.</p>
         <div className="error-msg">{error}</div>
         <div className="modal-actions">
           <button className="btn-cancel" onClick={onClose}>Abbrechen</button>
@@ -532,7 +624,7 @@ function AdminPanel({
 
       <div className="sec">
         <label>Trikots (Nummer / Name / Startpreis / Fotos)</label>
-        {draft.jerseys.map((j) => (
+        {draft.jerseys.slice().sort((a, b) => a.number - b.number).map((j) => (
           <div className="admin-row" key={j.id}>
             <input type="number" className="jn" value={j.number} onChange={(e) => updateDraftJerseyField(j.id, "number", Number(e.target.value) || 0)} />
             <input type="text" className="nm" value={j.name} onChange={(e) => updateDraftJerseyField(j.id, "name", e.target.value)} />
@@ -557,7 +649,7 @@ function AdminPanel({
       <div className="sec">
         <label>Gebotshistorie einsehen & Fake-Gebote entfernen</label>
         <select value={historyJerseyId || ""} onChange={(e) => setHistoryJerseyId(e.target.value)} style={{ marginBottom: 10, padding: "6px 8px" }}>
-          {draft.jerseys.map((j) => (
+          {draft.jerseys.slice().sort((a, b) => a.number - b.number).map((j) => (
             <option key={j.id} value={j.id}>#{j.number} {j.name}</option>
           ))}
         </select>

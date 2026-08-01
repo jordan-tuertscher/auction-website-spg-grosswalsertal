@@ -114,6 +114,7 @@ button.bidbtn:disabled { opacity: 0.4; cursor: not-allowed; border-color: var(--
 .modal { background: #fff; border: 1px solid var(--line); border-radius: var(--radius); padding: 24px; width: 100%; max-width: 380px; }
 .modal h3 { margin: 0 0 4px; font-family: "Anton", sans-serif; font-size: 22px; letter-spacing: 0.5px; color: var(--red); }
 .modal p.hint { color: var(--muted); font-size: 13px; margin: 0 0 16px; }
+.hint-warning { color: var(--red); font-weight: 600; }
 .field { margin-bottom: 14px; }
 .field label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.5px; }
 .field input {
@@ -185,6 +186,37 @@ table.history-table td { padding: 4px 6px; border-top: 1px solid var(--line); }
 }
 .lightbox-close:hover { background: var(--red); color: #fff; }
 .photo-wrap img:hover, .avatar-corner img:hover { filter: brightness(0.92); }
+
+/* Player popup: opened by clicking a jersey card. On mobile it just pops up
+   at normal size (nothing to zoom into on a small screen); from tablet width
+   up it's shown noticeably larger ("2x") since there's room for it. */
+.player-modal {
+  background: #fff; border-radius: var(--radius); padding: 26px; width: 100%; max-width: 340px;
+  position: relative; display: flex; flex-direction: column; gap: 12px;
+}
+.player-modal .jcard-top { padding-right: 0; justify-content: center; text-align: center; }
+.player-modal .avatar-corner { position: static; margin: 0 auto; }
+.player-modal .bidrow { justify-content: center; text-align: center; }
+.player-modal .bidrow > div { width: 100%; }
+.player-modal-close {
+  position: absolute; top: 12px; right: 12px; width: 34px; height: 34px; border-radius: 50%;
+  background: var(--surface); border: 1px solid var(--line); color: var(--ink); font-size: 16px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+}
+.player-modal-close:hover { background: var(--red); color: #fff; border-color: var(--red); }
+
+@media (min-width: 641px) {
+  .player-modal { max-width: 480px; padding: 40px; gap: 16px; }
+  .player-modal .photo-wrap { width: 200px; height: 200px; }
+  .player-modal .avatar-corner { width: 120px; height: 120px; }
+  .player-modal .face-icon { width: 68px; height: 68px; }
+  .player-modal .jnum { font-size: 64px; }
+  .player-modal .jname { font-size: 26px; }
+  .player-modal .bidlabel { font-size: 13px; }
+  .player-modal .bidamount { font-size: 34px; }
+  .player-modal .bidder { font-size: 15px; }
+  .player-modal button.bidbtn { font-size: 16px; padding: 14px; }
+}
 
 /* Large-screen / TV-friendly layout: on very wide viewports (e.g. a TV
    plugged into a laptop, or a big monitor at the club), stretch the content

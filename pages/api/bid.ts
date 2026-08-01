@@ -1,5 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { getConfig, getHistory, appendBid, computeCurrent } from "../../lib/store";
+import { globalBidLimiter, perIpBidLimiter, getClientIp } from "../../lib/ratelimit";
 import type { BidEntry, ApiError } from "../../lib/types";
 
 interface BidResponse {
@@ -13,6 +14,21 @@ export default async function handler(
 ) {
   if (req.method !== "POST") return res.status(405).end();
   try {
+    // Global cap: protects the backend from being overwhelmed if something
+    // sends a burst of requests (bug, bot, accidental flood, etc.).
+    const globalCheck = await globalBidLimiter.limit("bids");
+    if (!globalCheck.success) {
+      return res.status(429).json({ error: "Gerade sehr viel Andrang. Bitte in ein paar Sekunden nochmal versuchen." });
+    }
+
+    // Per-visitor cap: stops a single script or accidental double-clicking
+    // from spamming the bid button. Generous for a real human bidder.
+    const ip = getClientIp(req);
+    const ipCheck = await perIpBidLimiter.limit(ip);
+    if (!ipCheck.success) {
+      return res.status(429).json({ error: "Bitte kurz warten, bevor du erneut bietest." });
+    }
+
     const { jerseyId, amount, bidder, phone, email } = req.body || {};
 
     if (!jerseyId || !bidder || !amount) {
