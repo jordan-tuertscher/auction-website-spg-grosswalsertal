@@ -18,12 +18,16 @@
 html, body { padding: 0; margin: 0; background: var(--bg); color: var(--ink); font-family: "Inter", sans-serif; }
 .wrap { max-width: 1080px; margin: 0 auto; padding: 24px 20px 80px; }
 
-/* Buttons/cards give their own visual feedback (hover/active states), so
-   suppress the default focus ring for touch/mouse activation - keyboard
-   users (:focus-visible) still get it, for accessibility. */
-button:focus:not(:focus-visible),
-.jcard:focus:not(:focus-visible),
-[role="button"]:focus:not(:focus-visible) {
+/* Buttons/cards give their own visual feedback (hover/background change),
+   so the default focus ring is redundant here - some mobile browsers still
+   show it on tap even with :focus-visible, so remove it outright on these
+   custom interactive elements. Plain form inputs keep their own focus style
+   further down (border color change), so real keyboard focus is still
+   visible where it matters. */
+button:focus,
+.jcard:focus,
+.admin-gear:focus,
+[role="button"]:focus {
   outline: none;
 }
 
@@ -89,7 +93,6 @@ button:focus:not(:focus-visible),
   padding: 18px; display: flex; flex-direction: column; gap: 10px; position: relative;
   transition: transform 0.15s ease, background 0.15s ease, border-color 0.15s ease;
 }
-.jcard:hover { background: var(--card-hover); transform: translateY(-2px); border-color: var(--red-dim); }
 .jcard-top { display: flex; align-items: center; gap: 12px; padding-right: 68px; }
 .jnum { font-family: "Anton", sans-serif; font-size: 40px; color: var(--red); line-height: 1; min-width: 50px; }
 .jname { font-weight: 600; font-size: 16px; line-height: 1.25; color: var(--ink); }
@@ -116,7 +119,6 @@ button.bidbtn {
   background: transparent; color: var(--red); font-weight: 600; font-size: 14px; cursor: pointer;
   font-family: "Inter", sans-serif; transition: background 0.15s ease, color 0.15s ease;
 }
-button.bidbtn:hover { background: var(--red); color: #fff; }
 button.bidbtn:disabled { opacity: 0.4; cursor: not-allowed; border-color: var(--muted); color: var(--muted); }
 
 .overlay { position: fixed; inset: 0; background: rgba(32, 24, 24, 0.55); display: flex; align-items: center; justify-content: center; z-index: 50; padding: 20px; }
@@ -141,7 +143,6 @@ button.bidbtn:disabled { opacity: 0.4; cursor: not-allowed; border-color: var(--
 .modal-actions button { flex: 1; padding: 11px; border-radius: 8px; font-weight: 600; font-size: 14px; cursor: pointer; font-family: "Inter", sans-serif; }
 .btn-cancel { background: transparent; border: 1px solid var(--line); color: var(--ink-dim); }
 .btn-confirm { background: var(--red); border: 1px solid var(--red); color: #fff; }
-.btn-confirm:hover { background: var(--red-deep); }
 .error-msg { color: var(--red); font-size: 13px; margin-top: -6px; margin-bottom: 12px; min-height: 16px; }
 
 .admin-gear {
@@ -149,7 +150,6 @@ button.bidbtn:disabled { opacity: 0.4; cursor: not-allowed; border-color: var(--
   background: #fff; border: 1px solid var(--line); color: var(--muted); display: flex; align-items: center;
   justify-content: center; cursor: pointer; font-size: 16px; z-index: 40;
 }
-.admin-gear:hover { color: var(--red); border-color: var(--red-dim); }
 .admin-panel { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 22px; margin: 0 0 24px; }
 .admin-panel h3 { font-family: "Anton", sans-serif; margin: 0 0 4px; font-size: 20px; color: var(--red); }
 .admin-panel .sec { margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--line); }
@@ -172,9 +172,7 @@ button.bidbtn:disabled { opacity: 0.4; cursor: not-allowed; border-color: var(--
   padding: 8px 14px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; border: 1px solid var(--red);
   background: transparent; color: var(--red); font-family: "Inter", sans-serif; margin-top: 8px;
 }
-.admin-btn:hover { background: var(--red); color: #fff; }
 .admin-btn.danger { border-color: var(--red-deep); color: var(--red-deep); }
-.admin-btn.danger:hover { background: var(--red-deep); color: #fff; }
 .status-line { font-size: 12px; color: var(--muted); margin-top: 10px; min-height: 16px; }
 .loading { text-align: center; color: var(--muted); padding: 60px 0; font-size: 14px; }
 
@@ -193,8 +191,6 @@ table.history-table td { padding: 4px 6px; border-top: 1px solid var(--line); }
   background: #fff; border: none; color: var(--ink); font-size: 20px; cursor: pointer;
   display: flex; align-items: center; justify-content: center; z-index: 101;
 }
-.lightbox-close:hover { background: var(--red); color: #fff; }
-.photo-wrap img:hover, .avatar-corner img:hover { filter: brightness(0.92); }
 
 /* Player popup: opened by clicking a jersey card. On mobile it just pops up
    at normal size (nothing to zoom into on a small screen); from tablet width
@@ -212,7 +208,6 @@ table.history-table td { padding: 4px 6px; border-top: 1px solid var(--line); }
   background: var(--surface); border: 1px solid var(--line); color: var(--ink); font-size: 16px; cursor: pointer;
   display: flex; align-items: center; justify-content: center;
 }
-.player-modal-close:hover { background: var(--red); color: #fff; border-color: var(--red); }
 
 @media (min-width: 641px) {
   .player-modal { max-width: 480px; padding: 40px; gap: 16px; }
@@ -286,7 +281,6 @@ table.history-table td { padding: 4px 6px; border-top: 1px solid var(--line); }
   margin-left: 12px;
 }
 .legal-section[open] summary::after { content: "\2212"; }
-.legal-section summary:hover { color: var(--red); }
 .legal-content {
   padding: 4px 0 20px;
   color: var(--ink-dim);
@@ -302,3 +296,20 @@ table.history-table td { padding: 4px 6px; border-top: 1px solid var(--line); }
 .legal-content h4:first-child { margin-top: 0; }
 .legal-content p { margin: 0 0 12px; }
 .legal-content a { color: var(--red); }
+
+/* Hover effects only for devices that actually support real hovering
+   (mouse/trackpad). On touchscreens, :hover styles applied by tapping
+   would otherwise get "stuck" until the user taps elsewhere - which
+   looks exactly like a lingering, unwanted focus/highlight. */
+@media (hover: hover) and (pointer: fine) {
+  .jcard:hover { background: var(--card-hover); transform: translateY(-2px); border-color: var(--red-dim); }
+  button.bidbtn:hover { background: var(--red); color: #fff; }
+  .btn-confirm:hover { background: var(--red-deep); }
+  .admin-gear:hover { color: var(--red); border-color: var(--red-dim); }
+  .admin-btn:hover { background: var(--red); color: #fff; }
+  .admin-btn.danger:hover { background: var(--red-deep); color: #fff; }
+  .lightbox-close:hover { background: var(--red); color: #fff; }
+  .photo-wrap img:hover, .avatar-corner img:hover { filter: brightness(0.92); }
+  .player-modal-close:hover { background: var(--red); color: #fff; border-color: var(--red); }
+  .legal-section summary:hover { color: var(--red); }
+}
