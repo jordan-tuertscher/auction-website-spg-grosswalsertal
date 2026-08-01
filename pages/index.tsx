@@ -242,7 +242,7 @@ export default function Home() {
       <QrPromo variant="standalone" />
 
       <div className="toolbar">
-        <p className="intro">Ein Gebot kann NICHT zurückgezogen werden! Nicht nachvollziehbare Gebote werden von gelöscht.<br/>Sollten Sie bei der Überreichung des Trikots (Sportfest FC Sonntag) nicht anwesend sein, bitten wir Sie, Ihre Telefonnummer und Email Addresse beim Gebot an zu geben.</p>
+        <p className="intro">Ein Gebot kann NICHT zurückgezogen werden! Nicht nachvollziehbare Gebote werden von gelöscht.<br/>Sollten Sie bei der Überreichung des Trikots (Sportfest FC Sonntag) nicht anwesend sein, bitten wir Sie, Ihre Telefonnummer und Email Addresse beim Gebot anzugeben.</p>
         <div className="sort-block">
           <label htmlFor="sortSelect">Sortieren</label>
           <select id="sortSelect" value={sortMode} onChange={(e) => setSortMode(e.target.value as "number" | "high" | "low")}>
