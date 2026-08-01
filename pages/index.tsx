@@ -732,8 +732,7 @@ function LegalSection() {
           Wenn Sie auf ein Trikot bieten, speichern wir Ihren Namen und Ihr Gebot – diese sind für alle
           Besucher:innen dieser Seite sichtbar. Telefonnummer und E-Mail-Adresse sind freiwillig und dienen nur dem
           Vorstand zur Kontaktaufnahme bei der Trikot-Übergabe; sie werden nicht veröffentlicht. Die Daten werden
-          spätestens sechs Monate nach Abschluss der Auktion gelöscht. Diese Seite läuft über die Dienstleister
-          Vercel und Upstash (Hosting/Datenbank).
+          nach Abschluss der Auktion gelöscht. Diese Seite läuft über die Dienstleister Vercel und Upstash (Hosting/Datenbank).
         </p>
         <p>
           Bei Fragen oder zur Ausübung Ihrer Rechte (Auskunft, Berichtigung, Löschung u. a.) wenden Sie sich an{" "}
