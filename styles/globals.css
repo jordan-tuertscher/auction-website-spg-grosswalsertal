@@ -55,6 +55,16 @@ html, body { padding: 0; margin: 0; background: var(--bg); color: var(--ink); fo
 .qr-svg { width: 80px; height: 80px; display: block; }
 .qr-label { font-size: 10px; letter-spacing: 0.5px; text-transform: uppercase; color: #f0d6d6; text-align: center; max-width: 100px; }
 
+.qr-block-standalone { display: none; }
+@media (max-width: 640px) {
+  .qr-block-header { display: none; }
+  .qr-block-standalone {
+    display: flex; margin: -6px 0 20px;
+  }
+  .qr-block-standalone .qr-card { border: 1px solid var(--line); box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+  .qr-block-standalone .qr-label { color: var(--muted); }
+}
+
 .toolbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 20px; }
 .intro { color: var(--ink-dim); font-size: 15px; line-height: 1.6; max-width: 620px; margin: 0; }
 .sort-block { display: flex; align-items: center; gap: 8px; }
@@ -71,18 +81,18 @@ html, body { padding: 0; margin: 0; background: var(--bg); color: var(--ink); fo
   transition: transform 0.15s ease, background 0.15s ease, border-color 0.15s ease;
 }
 .jcard:hover { background: var(--card-hover); transform: translateY(-2px); border-color: var(--red-dim); }
-.jcard-top { display: flex; align-items: center; gap: 12px; padding-right: 52px; }
+.jcard-top { display: flex; align-items: center; gap: 12px; padding-right: 68px; }
 .jnum { font-family: "Anton", sans-serif; font-size: 40px; color: var(--red); line-height: 1; min-width: 50px; }
 .jname { font-weight: 600; font-size: 16px; color: var(--ink); }
 .photo-wrap { align-self: center; width: 100px; height: 100px; display: flex; align-items: center; justify-content: center; }
 .photo-wrap img { width: 100%; height: 100%; object-fit: cover; display: block; border-radius: 8px; }
 .avatar-corner {
-  position: absolute; top: 14px; right: 14px; width: 44px; height: 44px; border-radius: 50%; overflow: hidden;
+  position: absolute; top: 14px; right: 14px; width: 60px; height: 60px; border-radius: 50%; overflow: hidden;
   border: 2px solid var(--red); background: var(--surface); display: flex; align-items: center; justify-content: center;
 }
 .avatar-corner img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .shirt { width: 70px; height: 70px; opacity: 0.9; }
-.face-icon { width: 26px; height: 26px; opacity: 0.85; }
+.face-icon { width: 34px; height: 34px; opacity: 0.85; }
 
 .bidrow { display: flex; justify-content: space-between; align-items: baseline; border-top: 1px solid var(--line); padding-top: 10px; }
 .bidlabel { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); }
@@ -111,6 +121,12 @@ button.bidbtn:disabled { opacity: 0.4; cursor: not-allowed; border-color: var(--
   background: var(--surface); color: var(--ink); font-size: 15px; font-family: "Inter", sans-serif;
 }
 .field input:focus { outline: none; border-color: var(--red); }
+.field input[type="number"] { -moz-appearance: textfield; }
+.field input[type="number"]::-webkit-outer-spin-button,
+.field input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
 .modal-actions { display: flex; gap: 10px; margin-top: 18px; }
 .modal-actions button { flex: 1; padding: 11px; border-radius: 8px; font-weight: 600; font-size: 14px; cursor: pointer; font-family: "Inter", sans-serif; }
 .btn-cancel { background: transparent; border: 1px solid var(--line); color: var(--ink-dim); }

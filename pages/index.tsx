@@ -57,11 +57,28 @@ function FaceIcon() {
   );
 }
 
+// Static QR code for https://spg-grosswalsertal-trikot-auktion.vercel.app/
+// Generated once at build time (via the `qrcode` npm package) and embedded
+// directly as SVG markup, so it needs no external service or network call
+// at runtime and always matches the site's own colors.
 function ClubQrCode() {
   return (
     <svg viewBox="0 0 33 33" shapeRendering="crispEdges" className="qr-svg" aria-label="QR-Code zur Trikot-Auktion">
       <path stroke="#3d0d0d" d="M0 0.5h7m1 0h1m1 0h1m1 0h1m3 0h8m2 0h7M0 1.5h1m5 0h1m1 0h1m1 0h1m3 0h1m3 0h1m2 0h1m1 0h2m1 0h1m5 0h1M0 2.5h1m1 0h3m1 0h1m2 0h1m3 0h4m1 0h1m3 0h3m1 0h1m1 0h3m1 0h1M0 3.5h1m1 0h3m1 0h1m1 0h1m2 0h2m2 0h1m2 0h1m3 0h1m3 0h1m1 0h3m1 0h1M0 4.5h1m1 0h3m1 0h1m2 0h3m1 0h1m2 0h2m1 0h2m3 0h1m1 0h1m1 0h3m1 0h1M0 5.5h1m5 0h1m6 0h1m1 0h2m1 0h2m1 0h2m1 0h1m1 0h1m5 0h1M0 6.5h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7M8 7.5h2m2 0h1m2 0h4m1 0h1m2 0h2M0 8.5h1m1 0h2m1 0h3m1 0h2m1 0h1m1 0h2m1 0h5m4 0h1m2 0h1m1 0h2M0 9.5h4m3 0h3m1 0h3m2 0h2m1 0h3m1 0h1m2 0h2m1 0h2m1 0h1M1 10.5h3m2 0h1m2 0h2m2 0h1m4 0h1m1 0h2m1 0h2m2 0h3m2 0h1M0 11.5h3m1 0h1m3 0h1m1 0h2m5 0h1m1 0h2m3 0h1m2 0h1m1 0h1m1 0h1M0 12.5h1m1 0h2m2 0h1m1 0h1m2 0h2m1 0h3m2 0h2m1 0h4m1 0h3m1 0h1M0 13.5h4m4 0h1m2 0h1m1 0h2m2 0h1m1 0h1m1 0h1m2 0h1m2 0h1m2 0h2M0 14.5h4m1 0h2m3 0h1m1 0h1m1 0h1m2 0h1m1 0h1m1 0h1m4 0h1m1 0h2M2 15.5h4m1 0h2m1 0h1m1 0h2m1 0h1m2 0h1m2 0h3m1 0h2m2 0h2M1 16.5h2m1 0h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h4m1 0h2m1 0h3M0 17.5h2m1 0h1m5 0h1m1 0h1m3 0h1m2 0h1m1 0h1m2 0h1m2 0h1m1 0h2m2 0h1M0 18.5h2m1 0h2m1 0h2m1 0h2m1 0h2m1 0h2m1 0h1m1 0h3m2 0h4m1 0h2M1 19.5h4m6 0h1m2 0h1m1 0h3m1 0h1m1 0h1m1 0h2m2 0h1m2 0h1M1 20.5h2m3 0h1m3 0h3m2 0h2m2 0h3m2 0h1m2 0h1m1 0h2m1 0h1M0 21.5h1m1 0h1m1 0h1m2 0h1m1 0h1m5 0h2m2 0h3m1 0h1m2 0h1m3 0h1m1 0h1M3 22.5h1m2 0h2m4 0h2m1 0h1m1 0h2m2 0h1m1 0h1m2 0h3m2 0h2M1 23.5h2m6 0h3m3 0h1m3 0h1m3 0h2m1 0h1m2 0h1M0 24.5h1m4 0h3m2 0h2m1 0h2m2 0h1m4 0h8m1 0h1M8 25.5h3m2 0h3m3 0h1m1 0h4m3 0h2M0 26.5h7m1 0h1m1 0h2m1 0h2m1 0h5m2 0h2m1 0h1m1 0h1M0 27.5h1m5 0h1m1 0h2m1 0h1m1 0h1m1 0h7m1 0h2m3 0h5M0 28.5h1m1 0h3m1 0h1m2 0h1m1 0h8m1 0h2m1 0h6m1 0h1M0 29.5h1m1 0h3m1 0h1m1 0h1m4 0h1m2 0h1m3 0h1m1 0h1m4 0h1m1 0h1m2 0h1M0 30.5h1m1 0h3m1 0h1m1 0h1m6 0h2m1 0h1m5 0h4m1 0h2M0 31.5h1m5 0h1m3 0h1m6 0h3m2 0h4m1 0h2m3 0h1M0 32.5h7m1 0h2m1 0h3m2 0h3m1 0h2m3 0h2m1 0h1m1 0h1" />
     </svg>
+  );
+}
+
+// Rendered twice: once inline in the red header (desktop/tablet) and once as
+// a standalone card below the header (mobile). Which one is visible is
+// controlled purely by CSS media queries (see .qr-block-header /
+// .qr-block-standalone) so there's no layout-jump or duplicate logic.
+function QrPromo({ variant }: { variant: "header" | "standalone" }) {
+  return (
+    <div className={"qr-block qr-block-" + variant}>
+      <div className="qr-card"><ClubQrCode /></div>
+      <div className="qr-label">Hier scannen &amp; mitbieten</div>
+    </div>
   );
 }
 
@@ -183,11 +200,9 @@ export default function Home() {
           <div className="clock-label">{ended ? "Auktion beendet" : "Endet in"}</div>
           <div className={"clock" + (ended ? " ended" : "")}>{clockText}</div>
         </div>
-        <div className="qr-block">
-          <div className="qr-card"><ClubQrCode /></div>
-          <div className="qr-label">Hier scannen &amp; mitbieten</div>
-        </div>
+        <QrPromo variant="header" />
       </div>
+      <QrPromo variant="standalone" />
 
       <div className="toolbar">
         <p className="intro">Jeder Kampfmannschaftsspieler stellt sein Trikot zur Versteigerung. Bietet auf euer Lieblingsdress – der Höchstbietende bekommt es am Ende der Auktion.</p>
@@ -293,14 +308,18 @@ function BidModal({
   const [name, setName] = useState(saved.name);
   const [phone, setPhone] = useState(saved.phone);
   const [email, setEmail] = useState(saved.email);
-  const [amount, setAmount] = useState(minNext);
+  const [amount, setAmount] = useState<string>(String(minNext));
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
 
   async function submit() {
     setError("");
     if (!name.trim()) { setError("Bitte gib deinen Namen ein."); return; }
-    if (!amount || Number(amount) < minNext) { setError("Gebot muss mindestens " + fmtEUR(minNext) + " sein."); return; }
+    const amountNum = Number(amount);
+    if (!amount.trim() || Number.isNaN(amountNum) || amountNum < minNext) {
+      setError("Gebot muss mindestens " + fmtEUR(minNext) + " sein.");
+      return;
+    }
     const phoneTrimmed = phone.trim();
     const emailTrimmed = email.trim();
     if (phoneTrimmed && phoneTrimmed.replace(/[^0-9]/g, "").length < 6) { setError("Telefonnummer sieht ungültig aus."); return; }
@@ -310,7 +329,7 @@ function BidModal({
       const { ok, data } = await fetchJson<{ ok: true; current: BidEntry | null } | ApiError>("/api/bid", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ jerseyId: jersey.id, amount: Number(amount), bidder: name.trim(), phone: phoneTrimmed, email: emailTrimmed }),
+        body: JSON.stringify({ jerseyId: jersey.id, amount: amountNum, bidder: name.trim(), phone: phoneTrimmed, email: emailTrimmed }),
       });
       if (!ok) { setError((data as ApiError).error || "Fehler beim Speichern."); setBusy(false); return; }
       saveBidderInfo({ name: name.trim(), phone: phoneTrimmed, email: emailTrimmed });
@@ -327,7 +346,7 @@ function BidModal({
         <h3>{jersey.name} &ndash; Trikot #{jersey.number}</h3>
         <p className="hint">Mindestgebot: {fmtEUR(minNext)}</p>
         <div className="field"><label>Dein Name</label><input value={name} onChange={(e) => setName(e.target.value)} placeholder="Vor- und Nachname" /></div>
-        <div className="field"><label>Dein Gebot (EUR)</label><input type="number" min={minNext} step={1} value={amount} onChange={(e) => setAmount(Number(e.target.value))} /></div>
+        <div className="field"><label>Dein Gebot (EUR)</label><input type="number" min={minNext} step={1} value={amount} onChange={(e) => setAmount(e.target.value)} /></div>
         <div className="field"><label>Telefonnummer (optional)</label><input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="z. B. 0664 1234567" /></div>
         <div className="field"><label>E-Mail-Adresse (optional)</label><input value={email} onChange={(e) => setEmail(e.target.value)} placeholder="name@beispiel.at" /></div>
         <p className="hint" style={{ marginTop: "-6px" }}>Telefon und E-Mail helfen uns bei Rückfragen zur Trikot-Übergabe, sind aber nicht Pflicht und werden nicht öffentlich angezeigt.</p>
