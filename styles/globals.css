@@ -83,7 +83,7 @@ html, body { padding: 0; margin: 0; background: var(--bg); color: var(--ink); fo
 .jcard:hover { background: var(--card-hover); transform: translateY(-2px); border-color: var(--red-dim); }
 .jcard-top { display: flex; align-items: center; gap: 12px; padding-right: 68px; }
 .jnum { font-family: "Anton", sans-serif; font-size: 40px; color: var(--red); line-height: 1; min-width: 50px; }
-.jname { font-weight: 600; font-size: 16px; color: var(--ink); }
+.jname { font-weight: 600; font-size: 16px; line-height: 1.25; color: var(--ink); }
 .photo-wrap { align-self: center; width: 100px; height: 100px; display: flex; align-items: center; justify-content: center; }
 .photo-wrap img { width: 100%; height: 100%; object-fit: cover; display: block; border-radius: 8px; }
 .avatar-corner {
@@ -249,3 +249,47 @@ table.history-table td { padding: 4px 6px; border-top: 1px solid var(--line); }
   .jname { font-size: 22px; }
   .bidamount { font-size: 28px; }
 }
+
+/* Impressum / Datenschutz accordion */
+.legal-section {
+  margin: 40px 0 20px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 4px 20px;
+  background: var(--surface);
+}
+.legal-section summary {
+  cursor: pointer;
+  padding: 14px 0;
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--ink-dim);
+  list-style: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.legal-section summary::-webkit-details-marker { display: none; }
+.legal-section summary::after {
+  content: "+";
+  font-size: 18px;
+  color: var(--red);
+  margin-left: 12px;
+}
+.legal-section[open] summary::after { content: "\2212"; }
+.legal-section summary:hover { color: var(--red); }
+.legal-content {
+  padding: 4px 0 20px;
+  color: var(--ink-dim);
+  font-size: 13px;
+  line-height: 1.6;
+  max-width: 720px;
+}
+.legal-content h4 {
+  color: var(--red);
+  font-size: 15px;
+  margin: 20px 0 8px;
+}
+.legal-content h4:first-child { margin-top: 0; }
+.legal-content p { margin: 0 0 12px; }
+.legal-content a { color: var(--red); }

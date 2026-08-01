@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback, useRef, memo } from "react";
+import Head from "next/head";
 import type { AuctionConfig, BidsMap, BidEntry, Jersey, ConfigResponse, ApiError } from "../lib/types";
 import { CLUB_NAME } from "../lib/types";
 
@@ -37,6 +38,21 @@ function saveBidderInfo(info: SavedBidderInfo) {
 
 function fmtEUR(n: number): string {
   return new Intl.NumberFormat("de-DE", { style: "currency", currency: "EUR", maximumFractionDigits: 0 }).format(n);
+}
+
+// Breaks a player's name onto a second line at the first space, so names
+// display consistently on two lines (e.g. "Max" / "Mustermann") instead of
+// wrapping unpredictably or running wide on one line.
+function TwoLineName({ name }: { name: string }) {
+  const idx = name.indexOf(" ");
+  if (idx === -1) return <>{name}</>;
+  return (
+    <>
+      {name.slice(0, idx)}
+      <br />
+      {name.slice(idx + 1)}
+    </>
+  );
 }
 
 // Locks page scrolling behind any open modal/lightbox - avoids the confusing
@@ -206,7 +222,12 @@ export default function Home() {
   }
 
   return (
-    <div className="wrap">
+    <>
+      <Head>
+        <title>{CLUB_NAME} – Trikot-Auktion</title>
+        <meta name="description" content="Trikot-Auktion des SPG Großwalsertal – der Erlös kommt direkt dem Nachwuchs zugute." />
+      </Head>
+      <div className="wrap">
       <div className="scoreboard">
         <div>
           <div className="brand">{CLUB_NAME} <span>Trikot-Auktion</span></div>
@@ -290,7 +311,10 @@ export default function Home() {
           }}
         />
       )}
-    </div>
+
+      <LegalSection />
+      </div>
+    </>
   );
 }
 
@@ -312,7 +336,7 @@ const JerseyCard = memo(function JerseyCard({
       </div>
       <div className="jcard-top">
         <div className="jnum">{jersey.number}</div>
-        <div className="jname">{jersey.name}</div>
+        <div className="jname"><TwoLineName name={jersey.name} /></div>
       </div>
       <div
         className="photo-wrap"
@@ -360,7 +384,7 @@ function PlayerModal({
         </div>
         <div className="jcard-top">
           <div className="jnum">{jersey.number}</div>
-          <div className="jname">{jersey.name}</div>
+          <div className="jname"><TwoLineName name={jersey.name} /></div>
         </div>
         <div
           className="photo-wrap"
@@ -686,4 +710,36 @@ function structuredCloneConfig(config: AuctionConfig): AuctionConfig {
     ...config,
     jerseys: config.jerseys.map((j) => ({ ...j })),
   };
+}
+
+// Impressum / Datenschutz, adapted from the club's main website for this
+// auction page (it now collects name, bid amount, and optionally phone/
+// email, so the data-processing section is specific to that). Collapsed by
+// default via <details>, no JS needed for the toggle itself.
+function LegalSection() {
+  return (
+    <details className="legal-section">
+      <summary>Impressum &amp; Datenschutz</summary>
+      <div className="legal-content">
+        <h4>Impressum</h4>
+        <p>
+          SPG Großwalsertal<br />
+          <a href="mailto:sportfest@spg-grosswalsertal.at">sportfest@spg-grosswalsertal.at</a>
+        </p>
+
+        <h4>Datenschutz</h4>
+        <p>
+          Wenn Sie auf ein Trikot bieten, speichern wir Ihren Namen und Ihr Gebot – diese sind für alle
+          Besucher:innen dieser Seite sichtbar. Telefonnummer und E-Mail-Adresse sind freiwillig und dienen nur dem
+          Vorstand zur Kontaktaufnahme bei der Trikot-Übergabe; sie werden nicht veröffentlicht. Die Daten werden
+          spätestens sechs Monate nach Abschluss der Auktion gelöscht. Diese Seite läuft über die Dienstleister
+          Vercel und Upstash (Hosting/Datenbank).
+        </p>
+        <p>
+          Bei Fragen oder zur Ausübung Ihrer Rechte (Auskunft, Berichtigung, Löschung u. a.) wenden Sie sich an{" "}
+          <a href="mailto:sportfest@spg-grosswalsertal.at">sportfest@spg-grosswalsertal.at</a>.
+        </p>
+      </div>
+    </details>
+  );
 }
