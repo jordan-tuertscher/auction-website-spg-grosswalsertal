@@ -499,11 +499,50 @@ function AdminPanel({
   const [historyEntries, setHistoryEntries] = useState<BidEntry[]>([]);
   const [status, setStatus] = useState("");
   const [uploadingKey, setUploadingKey] = useState<string | null>(null);
+  const [backups, setBackups] = useState<string[]>([]);
+  const [backupBusy, setBackupBusy] = useState(false);
 
   useEffect(() => {
     if (historyJerseyId) loadHistory(historyJerseyId);
+    loadBackups();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  async function loadBackups() {
+    const { ok, data } = await fetchJson<{ backups: string[] } | ApiError>("/api/admin/backups", {
+      headers: authHeaders(),
+    });
+    setBackups(ok ? (data as { backups: string[] }).backups : []);
+  }
+
+  async function runBackupNow() {
+    setBackupBusy(true);
+    setStatus("Backup wird erstellt …");
+    try {
+      const { ok } = await fetchJson<{ ok: true; timestamp: string } | ApiError>("/api/admin/backup-now", {
+        method: "POST",
+        headers: authHeaders(),
+      });
+      setStatus(ok ? "Backup erstellt." : "Backup fehlgeschlagen.");
+      if (ok) loadBackups();
+    } finally {
+      setBackupBusy(false);
+    }
+  }
+
+  async function downloadBackup(timestamp: string) {
+    const res = await fetch("/api/admin/backup-download?timestamp=" + encodeURIComponent(timestamp), {
+      headers: authHeaders(),
+    });
+    if (!res.ok) { setStatus("Download fehlgeschlagen."); return; }
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `trikot-auktion-backup-${timestamp.replace(/[:.]/g, "-")}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
 
   function authHeaders(extra?: Record<string, string>) {
     return { "x-admin-password": adminPassword, ...(extra || {}) };
@@ -693,6 +732,34 @@ function AdminPanel({
                   <td>{entry.email || "-"}</td>
                   <td style={{ fontFamily: "Space Mono, monospace" }}>{fmtEUR(entry.amount)}</td>
                   <td><button className="admin-btn danger" style={{ margin: 0, padding: "4px 10px", fontSize: 12 }} onClick={() => removeBidEntry(entry.id)}>Entfernen</button></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
+
+      <div className="sec">
+        <label>Backups</label>
+        <p className="status-line" style={{ marginTop: 0 }}>
+          Automatisch einmal täglich, zusätzlich jederzeit manuell möglich. Die letzten 100 Sicherungen werden aufgehoben.
+        </p>
+        <button className="admin-btn" onClick={runBackupNow} disabled={backupBusy}>
+          {backupBusy ? "Wird erstellt …" : "Jetzt sichern"}
+        </button>
+        {backups.length === 0 ? (
+          <p className="status-line">Noch keine Backups vorhanden.</p>
+        ) : (
+          <table className="history-table" style={{ marginTop: 10 }}>
+            <tbody>
+              {backups.slice(0, 8).map((ts) => (
+                <tr key={ts}>
+                  <td>{new Date(ts).toLocaleString("de-DE", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" })}</td>
+                  <td>
+                    <button className="admin-btn" style={{ margin: 0, padding: "4px 10px", fontSize: 12 }} onClick={() => downloadBackup(ts)}>
+                      Herunterladen
+                    </button>
+                  </td>
                 </tr>
               ))}
             </tbody>

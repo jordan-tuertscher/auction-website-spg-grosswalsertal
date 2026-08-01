@@ -14,9 +14,18 @@
   --line: #e9dede;
   --radius: 14px;
 }
-* { box-sizing: border-box; }
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 html, body { padding: 0; margin: 0; background: var(--bg); color: var(--ink); font-family: "Inter", sans-serif; }
 .wrap { max-width: 1080px; margin: 0 auto; padding: 24px 20px 80px; }
+
+/* Buttons/cards give their own visual feedback (hover/active states), so
+   suppress the default focus ring for touch/mouse activation - keyboard
+   users (:focus-visible) still get it, for accessibility. */
+button:focus:not(:focus-visible),
+.jcard:focus:not(:focus-visible),
+[role="button"]:focus:not(:focus-visible) {
+  outline: none;
+}
 
 .scoreboard {
   background: var(--red);
