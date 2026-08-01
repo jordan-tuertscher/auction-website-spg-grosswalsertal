@@ -194,7 +194,7 @@ export default function Home() {
       <div className="scoreboard">
         <div>
           <div className="brand">{CLUB_NAME} <span>Trikot-Auktion</span></div>
-          <div className="subtitle">Der Erlös kommt direkt dem Nachwuchs zugute</div>
+          <div className="subtitle">Der Erlös kommt vollständig dem Nachwuchs zugute.</div>
         </div>
         <div className="clock-block">
           <div className="clock-label">{ended ? "Auktion beendet" : "Endet in"}</div>
@@ -205,7 +205,7 @@ export default function Home() {
       <QrPromo variant="standalone" />
 
       <div className="toolbar">
-        <p className="intro">Jeder Kampfmannschaftsspieler stellt sein Trikot zur Versteigerung. Bietet auf euer Lieblingsdress – der Höchstbietende bekommt es am Ende der Auktion.</p>
+        <p className="intro">Ein Gebot kann NICHT zurückgezogen werden! Nicht nachvollziehbare Gebote werden von gelöscht.<br/>Sollten Sie bei der Überreichung des Trikots (Sportfest FC Sonntag) nicht anwesend sein, bitten wir Sie, Ihre Telefonnummer und Email Addresse beim Gebot an zu geben.</p>
         <div className="sort-block">
           <label htmlFor="sortSelect">Sortieren</label>
           <select id="sortSelect" value={sortMode} onChange={(e) => setSortMode(e.target.value as "number" | "high" | "low")}>

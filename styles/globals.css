@@ -66,7 +66,7 @@ html, body { padding: 0; margin: 0; background: var(--bg); color: var(--ink); fo
 }
 
 .toolbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 20px; }
-.intro { color: var(--ink-dim); font-size: 15px; line-height: 1.6; max-width: 620px; margin: 0; }
+.intro { color: var(--ink-dim); font-size: 12px; line-height: 1.6; max-width: 620px; margin: 0; }
 .sort-block { display: flex; align-items: center; gap: 8px; }
 .sort-block label { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; }
 .sort-block select {
