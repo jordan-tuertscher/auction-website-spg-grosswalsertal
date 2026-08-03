@@ -150,6 +150,7 @@ export default function Home() {
   const [lightboxSrc, setLightboxSrc] = useState<string | null>(null);
   const [playerModalJerseyId, setPlayerModalJerseyId] = useState<string | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [tvMode, setTvMode] = useState(false);
 
   useLockBodyScroll(!!bidJerseyId || !!lightboxSrc || !!playerModalJerseyId);
   const [adminPassword, setAdminPasswordState] = useState("");
@@ -221,6 +222,17 @@ export default function Home() {
     return <div className="wrap"><div className="loading">Auktion wird geladen …</div></div>;
   }
 
+  if (tvMode) {
+    return (
+      <>
+        <Head>
+          <title>{CLUB_NAME} – Trikot-Auktion (TV-Modus)</title>
+        </Head>
+        <TvMode config={config} bids={bids} onExit={() => setTvMode(false)} />
+      </>
+    );
+  }
+
   return (
     <>
       <Head>
@@ -277,6 +289,12 @@ export default function Home() {
       </div>
 
       <div className="admin-gear" title="Vorstand" onClick={handleGearClick}>⚙</div>
+      <div className="tv-toggle" title="TV-Modus" onClick={() => setTvMode(true)}>
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <rect x="2.5" y="4.5" width="19" height="13" rx="2" stroke="currentColor" strokeWidth="1.6" />
+          <path d="M8 21h8M12 17.5V21" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+        </svg>
+      </div>
 
       {playerModalJerseyId && (() => {
         const j = config.jerseys.find((x) => x.id === playerModalJerseyId);
@@ -408,6 +426,135 @@ function PlayerModal({
         <button className="bidbtn" disabled={ended} onClick={onBid}>
           {ended ? "Auktion beendet" : "Bieten"}
         </button>
+      </div>
+    </div>
+  );
+}
+
+// Full-screen "kiosk" display meant for a TV/monitor at the clubhouse:
+// branding + countdown + QR code on the left, one big player card on the
+// right with the previous/next player peeking in behind it. Advances on its
+// own every 10s, or manually via the arrow buttons. Sorting is always fixed
+// by jersey number, regardless of what's selected in the normal view.
+function TvMode({ config, bids, onExit }: { config: AuctionConfig; bids: BidsMap; onExit: () => void }) {
+  const sorted = config.jerseys.slice().sort((a, b) => a.number - b.number);
+  const [index, setIndex] = useState(0);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const { text: clockText, isOver } = useCountdown(config.endTime, config.ended);
+  const ended = config.ended || isOver;
+
+  useLockBodyScroll(true);
+
+  const resetTimer = useCallback(() => {
+    if (timerRef.current) clearInterval(timerRef.current);
+    if (sorted.length <= 1) return;
+    timerRef.current = setInterval(() => {
+      setIndex((i) => (i + 1) % sorted.length);
+    }, 10000);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sorted.length]);
+
+  useEffect(() => {
+    resetTimer();
+    return () => { if (timerRef.current) clearInterval(timerRef.current); };
+  }, [resetTimer]);
+
+  // If jerseys are added/removed while TV mode is open, keep the index valid.
+  useEffect(() => {
+    setIndex((i) => (sorted.length === 0 ? 0 : i % sorted.length));
+  }, [sorted.length]);
+
+  function goPrev() {
+    if (sorted.length === 0) return;
+    setIndex((i) => (i - 1 + sorted.length) % sorted.length);
+    resetTimer();
+  }
+  function goNext() {
+    if (sorted.length === 0) return;
+    setIndex((i) => (i + 1) % sorted.length);
+    resetTimer();
+  }
+
+  async function toggleFullscreen() {
+    try {
+      if (!document.fullscreenElement) {
+        await document.documentElement.requestFullscreen();
+      } else {
+        await document.exitFullscreen();
+      }
+    } catch {
+      // Fullscreen isn't available in every environment - fine to ignore.
+    }
+  }
+
+  const prevJersey = sorted.length > 0 ? sorted[(index - 1 + sorted.length) % sorted.length] : null;
+  const currentJersey = sorted.length > 0 ? sorted[index] : null;
+  const nextJersey = sorted.length > 0 ? sorted[(index + 1) % sorted.length] : null;
+
+  return (
+    <div className="tv-mode">
+      <div className="tv-left">
+        <div className="tv-brand">
+          <div className="brand">{CLUB_NAME} <span>Trikot-Auktion</span></div>
+          <div className="subtitle">Der Erlös kommt vollständig dem Nachwuchs zugute.</div>
+        </div>
+        <div className="clock-block">
+          <div className="clock-label">{ended ? "Auktion beendet" : "Endet in"}</div>
+          <div className={"clock tv-clock" + (ended ? " ended" : "")}>{clockText}</div>
+        </div>
+        <div className="qr-block">
+          <div className="qr-card tv-qr-card"><ClubQrCode /></div>
+          <div className="qr-label">Hier scannen &amp; mitbieten</div>
+        </div>
+        <div className="tv-controls">
+          <button className="tv-btn" onClick={toggleFullscreen}>⛶ Vollbild</button>
+          <button className="tv-btn" onClick={onExit}>✕ Beenden</button>
+        </div>
+      </div>
+
+      <div className="tv-right">
+        {sorted.length === 0 ? (
+          <p className="tv-empty">Noch keine Trikots vorhanden.</p>
+        ) : (
+          <>
+            <button className="tv-arrow tv-arrow-left" onClick={goPrev} aria-label="Vorheriger Spieler">‹</button>
+            <div className="tv-stage">
+              {prevJersey && <TvPlayerCard key={"prev-" + prevJersey.id} jersey={prevJersey} bid={bids[prevJersey.id] || null} slot="prev" />}
+              {currentJersey && <TvPlayerCard key={"current-" + currentJersey.id} jersey={currentJersey} bid={bids[currentJersey.id] || null} slot="current" />}
+              {nextJersey && <TvPlayerCard key={"next-" + nextJersey.id} jersey={nextJersey} bid={bids[nextJersey.id] || null} slot="next" />}
+            </div>
+            <button className="tv-arrow tv-arrow-right" onClick={goNext} aria-label="Nächster Spieler">›</button>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function TvPlayerCard({ jersey, bid, slot }: { jersey: Jersey; bid: BidEntry | null; slot: "prev" | "current" | "next" }) {
+  const current = bid ? bid.amount : jersey.start;
+  const label = bid ? "Höchstgebot" : "Startpreis";
+  return (
+    <div className={"tv-card-slot " + slot}>
+      <div className="jcard tv-player-card">
+        <div className="avatar-corner">
+          {jersey.facePhoto ? <img src={jersey.facePhoto} alt={jersey.name} /> : <FaceIcon />}
+        </div>
+        <div className="jcard-top">
+          <div className="jnum">{jersey.number}</div>
+          <div className="jname"><TwoLineName name={jersey.name} /></div>
+        </div>
+        <div className="photo-wrap">
+          {jersey.jerseyPhoto ? <img src={jersey.jerseyPhoto} alt={"Trikot " + jersey.name} /> : <ShirtIcon />}
+        </div>
+        <div className="bidrow">
+          <div>
+            <div className="bidlabel">{label}</div>
+            <div className="bidamount">{fmtEUR(current)}</div>
+            {bid && <div className="bidder">von {bid.bidder}</div>}
+          </div>
+        </div>
       </div>
     </div>
   );

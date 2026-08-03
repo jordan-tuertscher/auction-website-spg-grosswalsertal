@@ -100,11 +100,13 @@ button:focus,
   align-self: stretch; width: 100%; aspect-ratio: 3 / 4; margin-top: 4px;
   display: flex; align-items: center; justify-content: center;
   background: var(--surface); border-radius: 10px; overflow: hidden;
+  transform: translateZ(0);
 }
 .photo-wrap img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .avatar-corner {
   position: absolute; top: 14px; right: 14px; width: 46px; height: 46px; border-radius: 50%; overflow: hidden;
   border: 2px solid var(--red); background: var(--surface); display: flex; align-items: center; justify-content: center;
+  transform: translateZ(0);
 }
 .avatar-corner img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .shirt { height: 84px; width: auto; opacity: 0.9; }
@@ -316,4 +318,80 @@ table.history-table td { padding: 4px 6px; border-top: 1px solid var(--line); }
   .photo-wrap img:hover, .avatar-corner img:hover { filter: brightness(0.92); }
   .player-modal-close:hover { background: var(--red); color: #fff; border-color: var(--red); }
   .legal-section summary:hover { color: var(--red); }
+  .tv-toggle:hover { color: var(--red); border-color: var(--red-dim); }
+  .tv-btn:hover { background: rgba(255,255,255,0.2); }
+  .tv-arrow:hover { background: var(--red); color: #fff; }
+}
+
+.tv-toggle {
+  position: fixed; bottom: 68px; right: 18px; width: 40px; height: 40px; border-radius: 50%;
+  background: #fff; border: 1px solid var(--line); color: var(--muted); display: flex; align-items: center;
+  justify-content: center; cursor: pointer; z-index: 40;
+}
+.tv-toggle svg { width: 18px; height: 18px; }
+
+/* ---- TV Mode --------------------------------------------------------- */
+.tv-mode {
+  position: fixed; inset: 0; z-index: 300;
+  background: var(--bg);
+  display: flex;
+  font-family: "Inter", sans-serif;
+}
+.tv-left {
+  width: 34%; min-width: 300px; max-width: 460px; background: var(--red); color: #fff;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 36px; padding: 40px 28px; flex-shrink: 0;
+}
+.tv-left .brand { color: #fff; text-align: center; }
+.tv-left .brand span { color: #f3d2d2; }
+.tv-left .subtitle { color: #f0d6d6; text-align: center; }
+.tv-left .clock-label { color: #f0d6d6; }
+.tv-clock { font-size: 44px; padding: 10px 26px; }
+.tv-qr-card { padding: 14px; }
+.tv-qr-card .qr-svg { width: 150px; height: 150px; }
+.tv-left .qr-label { color: #f0d6d6; font-size: 13px; max-width: 160px; }
+.tv-controls { display: flex; gap: 10px; margin-top: 8px; }
+.tv-btn {
+  background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.4); color: #fff;
+  padding: 9px 16px; border-radius: 8px; font-size: 13px; cursor: pointer; font-family: "Inter", sans-serif;
+}
+
+.tv-right { flex: 1; position: relative; background: var(--surface); display: flex; align-items: center; justify-content: center; overflow: hidden; }
+.tv-empty { color: var(--muted); font-size: 16px; }
+.tv-stage { position: relative; width: 100%; height: 100%; overflow: hidden; }
+.tv-card-slot {
+  position: absolute; top: 50%; left: 50%;
+  transition: transform 0.5s ease, opacity 0.5s ease;
+}
+.tv-card-slot.current { transform: translate(-50%, -50%) scale(1); opacity: 1; z-index: 3; }
+.tv-card-slot.prev { transform: translate(-85%, -50%) scale(0.7); opacity: 0.45; z-index: 1; filter: brightness(0.85); }
+.tv-card-slot.next { transform: translate(85%, -50%) scale(0.7); opacity: 0.45; z-index: 1; filter: brightness(0.85); }
+.tv-player-card {
+  width: 300px; box-shadow: 0 20px 50px rgba(0,0,0,0.18); cursor: default;
+}
+.tv-player-card:hover { transform: none; background: var(--card); border-color: var(--line); }
+.tv-arrow {
+  position: absolute; top: 50%; transform: translateY(-50%); z-index: 10;
+  width: 52px; height: 52px; border-radius: 50%; border: 1px solid var(--line); background: #fff;
+  color: var(--ink-dim); font-size: 26px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+  line-height: 1;
+}
+.tv-arrow-left { left: 24px; }
+.tv-arrow-right { right: 24px; }
+
+@media (min-width: 1400px) {
+  .tv-player-card { width: 360px; }
+  .tv-clock { font-size: 52px; }
+  .tv-qr-card .qr-svg { width: 180px; height: 180px; }
+}
+
+@media (max-width: 860px) {
+  .tv-mode { flex-direction: column; }
+  .tv-left { width: 100%; max-width: none; flex-direction: row; flex-wrap: wrap; gap: 20px; padding: 20px; justify-content: center; }
+  .tv-left .subtitle { display: none; }
+  .tv-qr-card .qr-svg { width: 90px; height: 90px; }
+  .tv-clock { font-size: 28px; padding: 6px 16px; }
+  .tv-right { flex: 1; }
+  .tv-player-card { width: 220px; }
+  .tv-arrow { width: 42px; height: 42px; font-size: 20px; }
 }
