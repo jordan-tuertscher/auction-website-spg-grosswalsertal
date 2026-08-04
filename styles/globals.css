@@ -358,14 +358,22 @@ table.history-table td { padding: 4px 6px; border-top: 1px solid var(--line); }
 
 .tv-right { flex: 1; position: relative; background: var(--surface); display: flex; align-items: center; justify-content: center; overflow: hidden; }
 .tv-empty { color: var(--muted); font-size: 16px; }
+.tv-mobile-note { display: none; color: var(--muted); font-size: 15px; text-align: center; padding: 0 30px; }
 .tv-stage { position: relative; width: 100%; height: 100%; overflow: hidden; }
 .tv-card-slot {
-  position: absolute; top: 50%; left: 50%;
-  transition: transform 0.5s ease, opacity 0.5s ease;
+  position: absolute; top: 50%;
+  transition: left 0.5s ease, transform 0.5s ease, opacity 0.5s ease;
 }
-.tv-card-slot.current { transform: translate(-50%, -50%) scale(1); opacity: 1; z-index: 3; }
-.tv-card-slot.prev { transform: translate(-85%, -50%) scale(0.7); opacity: 0.45; z-index: 1; filter: brightness(0.85); }
-.tv-card-slot.next { transform: translate(85%, -50%) scale(0.7); opacity: 0.45; z-index: 1; filter: brightness(0.85); }
+/* Each slot's horizontal position is set via `left` as a fixed pixel offset
+   from stage-center (calc(50% + Npx)) - NOT baked into the transform - so the
+   translate(-50%,-50%) below only ever does its one standard, well-tested
+   job: centering the box on whatever point `left` gives it, then scaling it
+   around that same fixed point. Keeping the offset out of the transform
+   avoids ambiguity about what a combined "translate% + scale" would resolve
+   to, which produced an incorrect gap between cards previously. */
+.tv-card-slot.current { left: 50%; transform: translate(-50%, -50%) scale(1); opacity: 1; z-index: 3; }
+.tv-card-slot.prev { left: calc(50% - 100px); transform: translate(-50%, -50%) scale(0.7); opacity: 0.45; z-index: 1; filter: brightness(0.85); }
+.tv-card-slot.next { left: calc(50% + 100px); transform: translate(-50%, -50%) scale(0.7); opacity: 0.45; z-index: 1; filter: brightness(0.85); }
 .tv-player-card {
   width: 300px; box-shadow: 0 20px 50px rgba(0,0,0,0.18); cursor: default;
 }
@@ -381,17 +389,24 @@ table.history-table td { padding: 4px 6px; border-top: 1px solid var(--line); }
 
 @media (min-width: 1400px) {
   .tv-player-card { width: 360px; }
+  .tv-card-slot.prev { left: calc(50% - 119px); }
+  .tv-card-slot.next { left: calc(50% + 119px); }
   .tv-clock { font-size: 52px; }
   .tv-qr-card .qr-svg { width: 180px; height: 180px; }
 }
 
-@media (max-width: 860px) {
+/* TV mode is meant for a big screen, not a phone - it isn't offered there:
+   the toggle button is hidden, and if the layout is ever reached anyway
+   (e.g. a desktop browser resized down), it shows a short note instead of a
+   cramped carousel. */
+@media (max-width: 768px) {
+  .tv-toggle { display: none; }
   .tv-mode { flex-direction: column; }
-  .tv-left { width: 100%; max-width: none; flex-direction: row; flex-wrap: wrap; gap: 20px; padding: 20px; justify-content: center; }
+  .tv-left { width: 100%; max-width: none; flex-direction: row; flex-wrap: wrap; gap: 16px; padding: 20px; justify-content: center; }
   .tv-left .subtitle { display: none; }
-  .tv-qr-card .qr-svg { width: 90px; height: 90px; }
-  .tv-clock { font-size: 28px; padding: 6px 16px; }
+  .tv-qr-card .qr-svg { width: 80px; height: 80px; }
+  .tv-clock { font-size: 24px; padding: 6px 14px; }
   .tv-right { flex: 1; }
-  .tv-player-card { width: 220px; }
-  .tv-arrow { width: 42px; height: 42px; font-size: 20px; }
+  .tv-right .tv-stage, .tv-right .tv-arrow { display: none; }
+  .tv-mobile-note { display: block; }
 }

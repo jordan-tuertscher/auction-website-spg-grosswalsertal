@@ -476,6 +476,15 @@ function TvMode({ config, bids, onExit }: { config: AuctionConfig; bids: BidsMap
     resetTimer();
   }
 
+  const [isFullscreen, setIsFullscreen] = useState(false);
+
+  useEffect(() => {
+    function handleChange() { setIsFullscreen(!!document.fullscreenElement); }
+    document.addEventListener("fullscreenchange", handleChange);
+    handleChange();
+    return () => document.removeEventListener("fullscreenchange", handleChange);
+  }, []);
+
   async function toggleFullscreen() {
     try {
       if (!document.fullscreenElement) {
@@ -508,12 +517,15 @@ function TvMode({ config, bids, onExit }: { config: AuctionConfig; bids: BidsMap
           <div className="qr-label">Hier scannen &amp; mitbieten</div>
         </div>
         <div className="tv-controls">
-          <button className="tv-btn" onClick={toggleFullscreen}>⛶ Vollbild</button>
+          <button className="tv-btn" onClick={toggleFullscreen}>
+            {isFullscreen ? "⛶ Vollbild beenden" : "⛶ Vollbild"}
+          </button>
           <button className="tv-btn" onClick={onExit}>✕ Beenden</button>
         </div>
       </div>
 
       <div className="tv-right">
+        <p className="tv-mobile-note">Der TV-Modus ist für größere Bildschirme gedacht und auf dem Handy nicht verfügbar.</p>
         {sorted.length === 0 ? (
           <p className="tv-empty">Noch keine Trikots vorhanden.</p>
         ) : (
