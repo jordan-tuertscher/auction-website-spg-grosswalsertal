@@ -212,8 +212,8 @@ export default function Home() {
   function sortedJerseys(): Jersey[] {
     if (!config) return [];
     const list = config.jerseys.slice();
-    if (sortMode === "high") list.sort((a, b) => currentAmount(b) - currentAmount(a));
-    else if (sortMode === "low") list.sort((a, b) => currentAmount(a) - currentAmount(b));
+    if (sortMode === "high") list.sort((a, b) => currentAmount(b) - currentAmount(a) || a.number - b.number);
+    else if (sortMode === "low") list.sort((a, b) => currentAmount(a) - currentAmount(b) || a.number - b.number);
     else list.sort((a, b) => a.number - b.number);
     return list;
   }
