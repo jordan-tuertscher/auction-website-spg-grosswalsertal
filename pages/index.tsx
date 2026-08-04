@@ -56,14 +56,21 @@ function TwoLineName({ name }: { name: string }) {
 }
 
 // Locks page scrolling behind any open modal/lightbox - avoids the confusing
-// "background scrolls under the popup" behavior, especially on mobile.
+// "background scrolls under the popup" behavior, especially on mobile. Also
+// disables overscroll/"pull-to-refresh" while locked: on mobile browsers,
+// overflow:hidden alone doesn't reliably stop that gesture, and if it fires
+// while a bid form is open, the whole page reloads and the in-progress bid
+// (name/amount typed so far) is lost.
 function useLockBodyScroll(locked: boolean) {
   useEffect(() => {
     if (!locked) return;
-    const original = document.body.style.overflow;
+    const originalOverflow = document.body.style.overflow;
+    const originalOverscroll = document.body.style.overscrollBehaviorY;
     document.body.style.overflow = "hidden";
+    document.body.style.overscrollBehaviorY = "none";
     return () => {
-      document.body.style.overflow = original;
+      document.body.style.overflow = originalOverflow;
+      document.body.style.overscrollBehaviorY = originalOverscroll;
     };
   }, [locked]);
 }
